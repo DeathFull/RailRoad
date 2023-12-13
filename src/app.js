@@ -4,24 +4,28 @@ import session from "express-session";
 import cors from "cors";
 import passport from "./passport.js";
 import userRouter from "./routers/UserRouter.js";
+import trainRouter from "./routers/trainRouter.js";
+import trainstationRouter from "./routers/trainstationRouter.js";
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(
-    session({
-        secret: "thesupersecretkey",
-        resave: false,
-        saveUninitialized: true,
-    })
+  session({
+    secret: "thesupersecretkey",
+    resave: false,
+    saveUninitialized: true,
+  }),
 );
 app.use(cors({}));
 app.use(passport.initialize());
 app.use(passport.session({}));
 
 app.get("/", (req, res) => {
-    res.status(200).send("Bienvenue sur l'API RailRoad !");
+  res.status(200).send("Bienvenue sur l'API RailRoad !");
 });
 app.use("/users", userRouter);
+app.use("/trains", trainRouter);
+app.use("/trainstations", trainstationRouter);
 export default app;
