@@ -40,11 +40,12 @@ router.post(
   "/register",
   processRequestBody(UserRegisterSchema),
   async (req, res) => {
+    const hasUserInDb = (await UserModel.countDocuments()) > 0;
     UserModel.register(
       new UserModel({
         username: req.body.username,
         email: req.body.email,
-        role: "User",
+        role: hasUserInDb ? "User" : "Admin",
       }),
       req.body.password,
       (err) => {
