@@ -4,9 +4,12 @@ import TrainRepository from "../repositories/TrainRepository.js";
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const { train } = req.query;
-
-  const trains = await TrainRepository.listTrains({});
+  const { limit, sortBy, order } = req.query;
+  const trains = await TrainRepository.listTrains(
+    Number(limit),
+    String(sortBy),
+    Number(order),
+  );
 
   res.json(trains);
 });
