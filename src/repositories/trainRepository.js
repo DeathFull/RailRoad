@@ -1,8 +1,9 @@
 import { TrainModel } from "../models/TrainModel.js";
 
 class TrainRepository {
-  async listTrains() {
-    return await TrainModel.find();
+  async listTrains(limit = 10, sortBy = "time_of_departure", order = 1) {
+    const sortOptions = [[sortBy, order]];
+    return TrainModel.find().sort(sortOptions).limit(limit);
   }
 
   async createTrain(trainPayload) {

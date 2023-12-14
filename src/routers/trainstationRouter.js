@@ -4,9 +4,10 @@ import TrainstationRepository from "../repositories/TrainstationRepository.js";
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const { trainstation } = req.query;
-
-  const trainstations = await TrainstationRepository.listTrainstations({});
+  const { order } = req.query;
+  const trainstations = await TrainstationRepository.listTrainstations(
+    Number(order),
+  );
 
   res.json(trainstations);
 });
