@@ -64,23 +64,19 @@ router.post(
 router.post("/login", passport.authenticate("local"), async (req, res) => {
   const { username } = req.body;
 
-  const user = await UserModel.findOne(
-    { username: username },
-    { _id: 1, username: 1, role: 1 },
-    null,
-  );
+  UserModel.findByUsername(username, (_, user) => {
+    const token = jwt.sign(
+      {
+        _id: user._id,
+        username: user.username,
+        role: user.role,
+      },
+      process.env.TOKEN_SECRET,
+      { expiresIn: "1h" },
+    );
 
-  const token = jwt.sign(
-    {
-      id: user._id,
-      username: user.username,
-      role: user.role,
-    },
-    process.env.TOKEN_SECRET,
-    { expiresIn: "1min" },
-  );
-
-  res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, { httpOnly: true });
+  });
 
   console.log("User logged in");
   res.status(200).send("Logged");
