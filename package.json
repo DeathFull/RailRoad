@@ -18,7 +18,7 @@
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.0.1",
+    "mongoose": "^8.0.3",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^8.0.0",
@@ -26,8 +26,9 @@
     "zod-express-middleware": "^1.4.0"
   },
   "devDependencies": {
-    "prettier": "^3.1.0",
-    "vitest": "^1.0.2",
+    "prettier": "^3.1.1",
+    "supertest": "^6.3.3",
+    "vitest": "^1.0.4",
     "vitest-mongodb": "^0.0.5"
   }
 }
