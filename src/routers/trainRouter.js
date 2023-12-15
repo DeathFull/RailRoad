@@ -5,10 +5,16 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   const { limit, sortBy, order } = req.query;
+  const sortByList = [
+    "name",
+    "start_station",
+    "end_station",
+    "time_of_departure",
+  ];
   const trains = await TrainRepository.listTrains(
-    Number(limit),
-    String(sortBy),
-    Number(order),
+    !Number.isNaN(limit) ? limit : 10,
+    sortBy in sortByList ? sortBy : "time_of_departure",
+    !Number.isNaN(order) ? order : 1,
   );
 
   res.json(trains);
