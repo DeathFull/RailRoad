@@ -5,12 +5,7 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   const { limit, sortBy, order } = req.query;
-  const sortByList = [
-    "name",
-    "start_station",
-    "end_station",
-    "time_of_departure",
-  ];
+  const sortByList = ["start_station", "end_station", "time_of_departure"];
   const trains = await TrainRepository.listTrains(
     !Number.isNaN(limit) ? limit : 10,
     sortBy in sortByList ? sortBy : "time_of_departure",
@@ -20,24 +15,22 @@ router.get("/", async (req, res) => {
   res.json(trains);
 });
 
+import mongoose from "mongoose";
+import { adminMiddleware } from "../middlewares/adminMiddleware.js";
+
 router.get("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    const train = await TrainRepository.getTrainById(id);
-
-    if (!train) {
-      return res.status(404).send("Train not found");
-    }
-
-    res.json(train);
-  } catch (e) {
-    console.log(e);
-    return res.status(500).send("Internal server error");
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).send("Invalid ObjectId");
   }
+
+  const train = await TrainRepository.getTrainById(id);
+  if (!train) return res.status(404).send("Train not found");
+  res.json(train);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", adminMiddleware, async (req, res) => {
   const train = await TrainRepository.createTrain(req.body);
   console.log("Train created");
 

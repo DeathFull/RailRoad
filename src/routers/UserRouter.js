@@ -1,11 +1,14 @@
 import express from "express";
 import UserRepository from "../repositories/UserRepository.js";
-import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { adminMiddleware } from "../middlewares/adminMiddleware.js";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../models/UserModel.js";
 import { z } from "zod";
 import passport from "passport";
 import { processRequestBody } from "zod-express-middleware";
+import { tokenMiddleware } from "../middlewares/tokenMiddleware.js";
+import { updateUserMiddleware } from "../middlewares/updateUserMiddleware.js";
+import { checkUserMiddleware } from "../middlewares/checkUserMiddleware.js";
 
 const router = express.Router();
 
@@ -20,20 +23,15 @@ router.get("/", async (req, res) => {
   res.json(users);
 });
 
-router.get("/:id", authMiddleware, async (req, res) => {
-  try {
-    const { id } = req.params;
+router.get("/:id", tokenMiddleware, checkUserMiddleware, async (req, res) => {
+  const { id } = req.params;
 
-    const user = await UserRepository.getUserById(id);
+  const user = await UserRepository.getUserById(id);
 
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
-    res.json(user);
-  } catch (e) {
-    console.log(e);
-    return res.status(500).send("Internal server error");
+  if (!user) {
+    return res.status(404).send("User not found");
   }
+  res.json(user);
 });
 
 router.post(
@@ -67,15 +65,14 @@ router.post("/login", passport.authenticate("local"), async (req, res) => {
 
   const user = await UserModel.findOne(
     { username: username },
-    { _id: 1, username: 1, role: 1 },
+    { _id: 1, lastEdited: 1 },
     null,
   );
 
   const token = jwt.sign(
     {
-      id: user._id,
-      username: user.username,
-      role: user.role,
+      _id: user._id,
+      lastEdited: user.lastEdited,
     },
     process.env.TOKEN_SECRET,
     { expiresIn: "1h" },
@@ -87,19 +84,19 @@ router.post("/login", passport.authenticate("local"), async (req, res) => {
   res.status(200).send("Logged");
 });
 
-router.put("/:id", authMiddleware, async (req, res) => {
-  try {
-    const { id } = req.params;
+router.put("/:id", tokenMiddleware, updateUserMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const existingUser = await UserRepository.getUserById(id);
+  if (existingUser) {
     await UserRepository.updateUser(id, req.body);
-    console.log("User updated");
-    res.json(req.body);
-  } catch (e) {
-    console.log(e);
-    return res.status(500).send("Internal server error");
+  } else {
+    return res.status(404).send("User not found");
   }
+  console.log("User updated");
+  res.json(req.body);
 });
 
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", tokenMiddleware, adminMiddleware, async (req, res) => {
   await UserRepository.deleteUser(req.params.id);
   console.log("User deleted");
   res.status(204).send();
