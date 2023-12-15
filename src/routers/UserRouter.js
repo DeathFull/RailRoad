@@ -10,8 +10,10 @@ import { updateUserMiddleware } from "../middlewares/updateUserMiddleware.js";
 import { checkUserMiddleware } from "../middlewares/checkUserMiddleware.js";
 import { employeeMiddleware } from "../middlewares/employeeMiddleware.js";
 import { userMiddleware } from "../middlewares/userMiddleware.js";
+import dotenv from "dotenv";
 
 const router = express.Router();
+dotenv.config();
 
 const UserRegisterSchema = z.object({
   username: z.string(),
@@ -20,7 +22,7 @@ const UserRegisterSchema = z.object({
 });
 
 router.get("/", tokenMiddleware, employeeMiddleware, async (req, res) => {
-  const users = await UserRepository.listUsers({});
+  const users = await UserRepository.listUsers();
   res.json(users);
 });
 
@@ -47,14 +49,14 @@ router.post(
         role: hasUserInDb ? "User" : "Admin",
       }),
       req.body.password,
-      (err) => {
+      (err, user) => {
         if (err) {
           console.error(err);
           return res.status(400).json(err);
         }
 
         passport.authenticate("local")(req, res, () => {
-          res.status(201).send("Created");
+          res.status(201).send({ _id: user._id });
         });
       },
     );
@@ -67,7 +69,6 @@ router.post("/login", passport.authenticate("local"), async (req, res) => {
   const user = await UserModel.findOne(
     { username: username },
     { _id: 1, lastEdited: 1 },
-    null,
   );
 
   const token = jwt.sign(
@@ -81,7 +82,6 @@ router.post("/login", passport.authenticate("local"), async (req, res) => {
 
   res.cookie("token", token, { httpOnly: true });
 
-  console.log("User logged in");
   res.status(200).send("Logged");
 });
 
@@ -93,13 +93,11 @@ router.put("/:id", tokenMiddleware, updateUserMiddleware, async (req, res) => {
   } else {
     return res.status(404).send("User not found");
   }
-  console.log("User updated");
   res.json(req.body);
 });
 
 router.delete("/:id", tokenMiddleware, userMiddleware, async (req, res) => {
   await UserRepository.deleteUser(req.params.id);
-  console.log("User deleted");
   res.status(204).send();
 });
 

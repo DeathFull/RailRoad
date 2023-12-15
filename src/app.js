@@ -6,8 +6,10 @@ import passport from "./passport.js";
 import userRouter from "./routers/UserRouter.js";
 import trainRouter from "./routers/trainRouter.js";
 import trainstationRouter from "./routers/trainstationRouter.js";
+import dotenv from "dotenv";
 
 const app = express();
+dotenv.config();
 
 app.use(express.json());
 app.use(cookieParser());

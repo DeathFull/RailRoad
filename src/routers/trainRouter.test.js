@@ -1,26 +1,10 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import supertest from "supertest";
 import mongoose from "mongoose";
 import app from "../app.js";
 import { TrainModel } from "../models/trainModel.js";
-import { MongoMemoryServer } from "mongodb-memory-server";
-
-const mongoServer = await MongoMemoryServer.create({
-  instance: { dbName: "railroad" },
-});
 
 describe("Train routes", () => {
-  beforeAll(async () => {
-    await mongoose.connect(mongoServer.getUri(), {
-      serverSelectionTimeoutMS: 5000,
-    });
-  });
-
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
-  });
-
   const request = supertest(app);
   let trainId;
   const newTrain = {
