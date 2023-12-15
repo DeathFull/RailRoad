@@ -2,6 +2,7 @@ import express from "express";
 import TrainRepository from "../repositories/TrainRepository.js";
 import mongoose from "mongoose";
 import { adminMiddleware } from "../middlewares/adminMiddleware.js";
+import { tokenMiddleware } from "../middlewares/tokenMiddleware.js";
 
 const router = express.Router();
 
@@ -29,14 +30,14 @@ router.get("/:id", async (req, res) => {
   res.json(train);
 });
 
-router.post("/", adminMiddleware, async (req, res) => {
+router.post("/", tokenMiddleware, adminMiddleware, async (req, res) => {
   const train = await TrainRepository.createTrain(req.body);
   console.log("Train created");
 
   res.status(201).json(train);
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", tokenMiddleware, adminMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     await TrainRepository.updateTrain(id, req.body);
@@ -48,7 +49,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", tokenMiddleware, adminMiddleware, async (req, res) => {
   await TrainRepository.deleteTrain(req.params.id);
   console.log("Train deleted");
   res.status(204).send();

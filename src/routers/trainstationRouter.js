@@ -1,5 +1,7 @@
 import express from "express";
 import TrainstationRepository from "../repositories/TrainstationRepository.js";
+import { tokenMiddleware } from "../middlewares/tokenMiddleware.js";
+import { adminMiddleware } from "../middlewares/adminMiddleware.js";
 
 const router = express.Router();
 
@@ -29,7 +31,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", tokenMiddleware, adminMiddleware, async (req, res) => {
   const trainstation = await TrainstationRepository.createTrainstation(
     req.body,
   );
@@ -38,7 +40,7 @@ router.post("/", async (req, res) => {
   res.status(201).json(trainstation);
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", tokenMiddleware, adminMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     await TrainstationRepository.updateTrainstation(id, req.body);
@@ -50,7 +52,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", tokenMiddleware, adminMiddleware, async (req, res) => {
   await TrainstationRepository.deleteTrainstation(req.params.id);
   console.log("Trainstation deleted");
   res.status(204).send();
