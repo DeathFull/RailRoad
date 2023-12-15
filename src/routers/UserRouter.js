@@ -1,6 +1,5 @@
 import express from "express";
 import UserRepository from "../repositories/UserRepository.js";
-import { adminMiddleware } from "../middlewares/adminMiddleware.js";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../models/UserModel.js";
 import { z } from "zod";
@@ -9,6 +8,8 @@ import { processRequestBody } from "zod-express-middleware";
 import { tokenMiddleware } from "../middlewares/tokenMiddleware.js";
 import { updateUserMiddleware } from "../middlewares/updateUserMiddleware.js";
 import { checkUserMiddleware } from "../middlewares/checkUserMiddleware.js";
+import { employeeMiddleware } from "../middlewares/employeeMiddleware.js";
+import { userMiddleware } from "../middlewares/userMiddleware.js";
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ const UserRegisterSchema = z.object({
   password: z.string().min(6),
 });
 
-router.get("/", async (req, res) => {
+router.get("/", tokenMiddleware, employeeMiddleware, async (req, res) => {
   const users = await UserRepository.listUsers({});
   res.json(users);
 });
@@ -96,7 +97,7 @@ router.put("/:id", tokenMiddleware, updateUserMiddleware, async (req, res) => {
   res.json(req.body);
 });
 
-router.delete("/:id", tokenMiddleware, adminMiddleware, async (req, res) => {
+router.delete("/:id", tokenMiddleware, userMiddleware, async (req, res) => {
   await UserRepository.deleteUser(req.params.id);
   console.log("User deleted");
   res.status(204).send();

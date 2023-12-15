@@ -1,5 +1,7 @@
 import express from "express";
 import TrainRepository from "../repositories/TrainRepository.js";
+import mongoose from "mongoose";
+import { adminMiddleware } from "../middlewares/adminMiddleware.js";
 
 const router = express.Router();
 
@@ -14,9 +16,6 @@ router.get("/", async (req, res) => {
 
   res.json(trains);
 });
-
-import mongoose from "mongoose";
-import { adminMiddleware } from "../middlewares/adminMiddleware.js";
 
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
