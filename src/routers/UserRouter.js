@@ -11,6 +11,7 @@ import { checkUserMiddleware } from "../middlewares/checkUserMiddleware.js";
 import { employeeMiddleware } from "../middlewares/employeeMiddleware.js";
 import { userMiddleware } from "../middlewares/userMiddleware.js";
 import dotenv from "dotenv";
+import { objectIdMiddleware } from "../middlewares/objectIdMiddleware.js";
 
 const router = express.Router();
 dotenv.config();
@@ -26,16 +27,22 @@ router.get("/", tokenMiddleware, employeeMiddleware, async (req, res) => {
   res.json(users);
 });
 
-router.get("/:id", tokenMiddleware, checkUserMiddleware, async (req, res) => {
-  const { id } = req.params;
+router.get(
+  "/:id",
+  tokenMiddleware,
+  objectIdMiddleware,
+  checkUserMiddleware,
+  async (req, res) => {
+    const { id } = req.params;
 
-  const user = await UserRepository.getUserById(id);
+    const user = await UserRepository.getUserById(id);
 
-  if (!user) {
-    return res.status(404).send("User not found");
-  }
-  res.json(user);
-});
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.json(user);
+  },
+);
 
 router.post(
   "/register",
@@ -85,20 +92,32 @@ router.post("/login", passport.authenticate("local"), async (req, res) => {
   res.status(200).send("Logged");
 });
 
-router.put("/:id", tokenMiddleware, updateUserMiddleware, async (req, res) => {
-  const { id } = req.params;
-  const existingUser = await UserRepository.getUserById(id);
-  if (existingUser) {
-    await UserRepository.updateUser(id, req.body);
-  } else {
-    return res.status(404).send("User not found");
-  }
-  res.json(req.body);
-});
+router.put(
+  "/:id",
+  tokenMiddleware,
+  objectIdMiddleware,
+  updateUserMiddleware,
+  async (req, res) => {
+    const { id } = req.params;
+    const existingUser = await UserRepository.getUserById(id);
+    if (existingUser) {
+      await UserRepository.updateUser(id, req.body);
+    } else {
+      return res.status(404).send("User not found");
+    }
+    res.json(req.body);
+  },
+);
 
-router.delete("/:id", tokenMiddleware, userMiddleware, async (req, res) => {
-  await UserRepository.deleteUser(req.params.id);
-  res.status(204).send();
-});
+router.delete(
+  "/:id",
+  tokenMiddleware,
+  objectIdMiddleware,
+  userMiddleware,
+  async (req, res) => {
+    await UserRepository.deleteUser(req.params.id);
+    res.status(204).send();
+  },
+);
 
 export default router;

@@ -141,7 +141,7 @@ describe("User routes", () => {
       expect(response.body.username).toBe(newEmployee.username);
     });
 
-    it("GET /:id should return other user (as admin user)", async () => {
+    it("GET /:id should return other user", async () => {
       const response = await req.get(`/users/${userId}`);
       expect(response.status).toBe(200);
       expect(response.body._id).toBe(userId);
@@ -199,7 +199,6 @@ describe("User routes", () => {
   describe("GET / (as normal user)", () => {
     it("should return a list of users with valid role (return error)", async () => {
       const response = await req.get("/users");
-      const usersLength = await UserModel.countDocuments({}).exec();
       expect(response.status).toEqual(403);
     });
 

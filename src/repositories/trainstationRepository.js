@@ -14,18 +14,16 @@ class TrainstationRepository {
   }
 
   async updateTrainstation(id, payload) {
-    const newTrainstation = await TrainstationModel.findOneAndUpdate(
+    return await TrainstationModel.findOneAndUpdate(
       {
         _id: id,
       },
       payload,
     );
-
-    return newTrainstation;
   }
 
   async deleteTrainstation(id) {
-    await TrainstationModel.deleteOne({ _id: id });
+    await TrainstationModel.findOneAndDelete({ _id: id });
   }
 }
 

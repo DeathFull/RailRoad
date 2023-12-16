@@ -6,6 +6,7 @@ const TrainstationSchema = new mongoose.Schema({
   close_hour: { type: String, required: true },
   image: { type: String, required: true },
 });
+
 export const TrainstationModel = mongoose.model(
   "Trainstation",
   TrainstationSchema,
