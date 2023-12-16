@@ -6,6 +6,7 @@ import passport from "./passport.js";
 import userRouter from "./routers/UserRouter.js";
 import trainRouter from "./routers/trainRouter.js";
 import trainstationRouter from "./routers/trainstationRouter.js";
+import ticketRouter from "./routers/ticketRouter.js";
 import dotenv from "dotenv";
 
 const app = express();
@@ -30,4 +31,5 @@ app.get("/", (req, res) => {
 app.use("/users", userRouter);
 app.use("/trains", trainRouter);
 app.use("/trainstations", trainstationRouter);
+app.use("/tickets", ticketRouter);
 export default app;
