@@ -12,6 +12,10 @@ Unzip the project and run the following command in the project folder:
 npm install
 ```
 
+### Configuration
+
+Edit the file .env to configure the project with your own values.
+
 ### Usage
 ```bash
 npm run dev
