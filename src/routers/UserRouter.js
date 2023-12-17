@@ -102,7 +102,7 @@ router.put(
     const { id } = req.params;
     const existingUser = await UserRepository.getUserById(id);
     if (existingUser) {
-      if (req.user.role !== "Admin") {
+      if (req.body.role && req.user.role !== "Admin") {
         res.status(403).send("You are not allowed to edit this user");
         delete req.body.role;
       }

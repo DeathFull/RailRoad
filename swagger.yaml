@@ -1,0 +1,602 @@
+openapi: 3.0.2
+info:
+  title: Railroad API
+  description: API documentation for Railroad, a train app
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/
+paths:
+  /tickets/{id}:
+    get:
+      summary: Get details of a specific ticket
+      parameters:
+        - name: id
+          in: path
+          description: ID of the ticket
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '404':
+          description: Ticket not found
+      security:
+        - BearerAuth: [ ]
+  
+  /tickets/validate:
+    get:
+      summary: Validate a ticket
+      description: Requires employee privileges
+      parameters:
+        - name: trainId
+          in: query
+          description: ID of the train
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: query
+          description: ID of the user
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+        '400':
+          description: Train ID and User ID are required or must be valid
+      security:
+        - BearerAuth: [ ]
+
+  /tickets:
+    post:
+      summary: Create a new ticket
+      description: Requires employee privileges
+      requestBody:
+        description: Ticket object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketPayload'
+      responses:
+        '201':
+          description: Ticket created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+      security:
+        - BearerAuth: [ ]
+  /trains:
+    get:
+      summary: Get a list of trains
+      parameters:
+        - name: limit
+          in: query
+          description: Limit the number of results
+          schema:
+            type: integer
+            default: 10
+        - name: sortBy
+          in: query
+          description: Sort by field (start_station, end_station, time_of_departure)
+          schema:
+            type: string
+            enum: [ "start_station", "end_station", "time_of_departure" ]
+            default: "time_of_departure"
+        - name: order
+          in: query
+          description: Sort order (1 for ascending, -1 for descending)
+          schema:
+            type: integer
+            enum: [ 1, -1 ]
+            default: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Train'
+    post:
+      summary: Create a new train
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        description: Train object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Train'
+      responses:
+        '201':
+          description: Train created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Train'
+
+  /trains/{id}:
+    get:
+      summary: Get details of a specific train
+      parameters:
+        - name: id
+          in: path
+          description: ID of the train
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Train'
+        '404':
+          description: Train not found
+    put:
+      summary: Update a specific train
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: ID of the train
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Train object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Train'
+      responses:
+        '200':
+          description: Train updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Train'
+        '404':
+          description: Train not found
+    delete:
+      summary: Delete a specific train
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: ID of the train
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Train deleted successfully
+        '404':
+          description: Train not found
+  /users:
+    get:
+      summary: Get a list of users
+      description: Requires employee privileges and a valid token
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      security:
+        - BearerAuth: [ ]
+
+  /users/register:
+    post:
+      summary: Register a new user
+      description: Creates a new user with the provided credentials
+      requestBody:
+        description: User registration object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterPayload'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/login:
+    post:
+      summary: Login with user credentials
+      requestBody:
+        description: User login credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginPayload'
+      responses:
+        '200':
+          description: User logged in successfully
+        '401':
+          description: Unauthorized
+
+  /users/{id}:
+    get:
+      summary: Get details of a specific user
+      description: Requires a valid token and checks if the user exists
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+      security:
+        - BearerAuth: [ ]
+    put:
+      summary: Update a specific user
+      description: Requires a valid token and checks user privileges
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated user object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdatePayload'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: User privileges not sufficient
+        '404':
+          description: User not found
+      security:
+        - BearerAuth: [ ]
+    delete:
+      summary: Delete a specific user
+      description: Requires a valid token and checks user privileges
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted successfully
+        '403':
+          description: User privileges not sufficient
+        '404':
+          description: User not found
+      security:
+        - BearerAuth: [ ]
+  /trainstations:
+    get:
+      summary: Get a list of train stations
+      parameters:
+        - name: order
+          in: query
+          description: Order the results (1 for ascending, -1 for descending)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Trainstation'
+    post:
+      summary: Create a new train station
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        description: Train station object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainstationPayload'
+      responses:
+        '201':
+          description: Train station created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trainstation'
+
+  /trainstations/{id}:
+    get:
+      summary: Get details of a specific train station
+      parameters:
+        - name: id
+          in: path
+          description: ID of the train station
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trainstation'
+        '404':
+          description: Train station not found
+    put:
+      summary: Update a specific train station
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: ID of the train station
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Train station object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainstationPayload'
+      responses:
+        '200':
+          description: Train station updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trainstation'
+        '404':
+          description: Train station not found
+    delete:
+      summary: Delete a specific train station
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: ID of the train station
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Train station deleted successfully
+        '404':
+          description: Train station not found
+
+  /trainstations/{id}/image:
+    get:
+      summary: Get the image of a specific train station
+      parameters:
+        - name: id
+          in: path
+          description: ID of the train station
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Train station not found
+components:
+  schemas:
+    Ticket:
+      type: object
+      properties:
+        user:
+          type: string
+          format: uuid
+          description: ID of the user associated with the ticket
+        train:
+          type: string
+          format: uuid
+          description: ID of the train associated with the ticket
+      required:
+        - user
+        - train
+
+    TicketPayload:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: ID of the user associated with the ticket
+        trainId:
+          type: string
+          format: uuid
+          description: ID of the train associated with the ticket
+      required:
+        - userId
+        - trainId
+    Train:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the train
+        start_station:
+          type: string
+          description: ID of the start station (Trainstation)
+        end_station:
+          type: string
+          description: ID of the end station (Trainstation)
+        time_of_departure:
+          type: string
+          format: date-time
+          description: Time of departure
+      required:
+        - name
+        - start_station
+        - end_station
+        - time_of_departure
+    User:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Email of the user
+        role:
+          type: string
+          enum: [ 'Admin', 'Employee', 'User' ]
+          description: Role of the user
+        lastEdited:
+          type: string
+          format: date-time
+          description: Last edited timestamp
+      required:
+        - email
+        - role
+    UserRegisterPayload:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Username of the user
+        email:
+          type: string
+          format: email
+          description: Email of the user
+        password:
+          type: string
+          description: "Password of the user (minimum length: 6)"
+      required:
+        - username
+        - email
+        - password
+    UserUpdatePayload:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Updated username of the user
+        email:
+          type: string
+          format: email
+          description: Updated email of the user
+        password:
+          type: string
+          description: Updated password of the user
+      required:
+        - username
+        - email
+        - password
+    UserLoginPayload:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Username of the user
+        password:
+          type: string
+          description: Password of the user
+      required:
+        - username
+        - password
+    Trainstation:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the train station
+        open_hour:
+          type: string
+          description: Opening hour of the train station
+        close_hour:
+          type: string
+          description: Closing hour of the train station
+        image:
+          type: string
+          format: base64
+          description: Image of the train station (base64 encoded)
+      required:
+        - name
+        - open_hour
+        - close_hour
+        - image
+
+    TrainstationPayload:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the train station
+        open_hour:
+          type: string
+          description: Opening hour of the train station
+        close_hour:
+          type: string
+          description: Closing hour of the train station
+        image:
+          type: string
+          format: base64
+          description: Image of the train station (base64 encoded)
+      required:
+        - name
+        - open_hour
+        - close_hour
+        - image
+  securitySchemes:
+    BearerAuth:
+      type: apiKey
+      in: cookie
+      name: token
+      description: Use a valid bearer token for authentication

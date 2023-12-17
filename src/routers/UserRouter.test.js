@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import request from "supertest";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import app from "../app.js";
 import { UserModel } from "../models/UserModel.js";
 import UserRepository from "../repositories/UserRepository.js";
@@ -104,11 +104,14 @@ describe("User routes", () => {
       const response = await req.put(`/users/${adminId}`).send(updatedUser);
       expect(response.status).toBe(200);
       expect(response.body.email).toBe(updatedUser.email);
+      await req
+        .post("/users/login")
+        .send({ username: newAdmin.username, password: newAdmin.password });
     });
   });
 
   describe("DELETE /:id (as admin user)", () => {
-    it("should delete specific user", async () => {
+    it("should delete my user", async () => {
       const response = await req.delete(`/users/${adminId}`);
       expect(response.status).toBe(204);
     });
@@ -155,6 +158,29 @@ describe("User routes", () => {
     });
   });
 
+  describe("PUT /:id (as employee user)", () => {
+    it("should update a specific user (return error)", async () => {
+      const updatedUser = {
+        email: "updated@test.com",
+      };
+      const response = await req.put(`/users/${userId}`).send(updatedUser);
+      expect(response.status).toBe(403);
+    });
+
+    it("should update my user", async () => {
+      const updatedUser = {
+        email: "updated@test.com",
+      };
+      const response = await req.put(`/users/${employeeId}`).send(updatedUser);
+      expect(response.status).toBe(200);
+      expect(response.body.email).toBe(updatedUser.email);
+      await req.post("/users/login").send({
+        username: newEmployee.username,
+        password: newEmployee.password,
+      });
+    });
+  });
+
   describe("DELETE /:id (as employee user)", () => {
     it("should delete my user", async () => {
       const response = await req.delete(`/users/${employeeId}`);
@@ -174,25 +200,6 @@ describe("User routes", () => {
         .send({ username: newUser.username, password: newUser.password });
       expect(response.status).toBe(200);
       expect(response.headers["set-cookie"][1]).toBeDefined();
-    });
-  });
-
-  describe("PUT /:id (as normal user)", () => {
-    it("should update a specific user (return error)", async () => {
-      const updatedUser = {
-        email: "updated@test.com",
-      };
-      const response = await req.put(`/users/${userId}`).send(updatedUser);
-      expect(response.status).toBe(200);
-      expect(response.body.email).toBe(updatedUser.email);
-    });
-
-    it("should update my user (return error)", async () => {
-      const updatedUser = {
-        email: "updated@test.com",
-      };
-      const response = await req.put(`/users/${employeeId}`).send(updatedUser);
-      expect(response.status).toBe(403);
     });
   });
 
@@ -236,6 +243,9 @@ describe("User routes", () => {
       const response = await req.put(`/users/${userId}`).send(updatedUser);
       expect(response.status).toBe(200);
       expect(response.body.email).toBe(updatedUser.email);
+      await req
+        .post("/users/login")
+        .send({ username: newUser.username, password: newUser.password });
     });
   });
 
@@ -246,7 +256,9 @@ describe("User routes", () => {
     });
 
     it("should delete another user (return error)", async () => {
-      const response = await req.delete(`/users/${employeeId}`);
+      const response = await req.delete(
+        `/users/${new Types.ObjectId(employeeId)}`,
+      );
       expect(response.status).toBe(403);
     });
   });

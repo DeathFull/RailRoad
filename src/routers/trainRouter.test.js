@@ -35,14 +35,16 @@ describe("Train routes", async () => {
       name: "Marseille",
       open_hour: "06:30",
       close_hour: "23:00",
-      image: "test",
+      image:
+        "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAGUlEQVR4nGK5Pn0NA27AhEduBEsDAgAA//+YhQIxkd2zQAAAAABJRU5ErkJggg==",
     };
 
     const stationPayload1 = {
       name: "Paris",
       open_hour: "06:30",
       close_hour: "23:00",
-      image: "test",
+      image:
+        "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAGUlEQVR4nGK5Pn0NA27AhEduBEsDAgAA//+YhQIxkd2zQAAAAABJRU5ErkJggg==",
     };
 
     await req.post("/trainstations").send(stationPayload);
@@ -63,7 +65,6 @@ describe("Train routes", async () => {
     it("should create a new train", async () => {
       let response = await req.post("/trains").send(newTrain);
       trainId = response.body._id;
-      console.log(response.body);
       expect(response.status).toBe(201);
       expect(response.body.start_station).toBe(
         newTrain.start_station.toString(),
