@@ -2,7 +2,7 @@ import { TrainstationModel } from "../models/TrainstationModel.js";
 
 class TrainstationRepository {
   async listTrainstations(order = 1) {
-    return await TrainstationModel.find().sort({ name: order });
+    return await TrainstationModel.find().sort({ name: Number(order) });
   }
 
   async createTrainstation(trainstationPayload) {

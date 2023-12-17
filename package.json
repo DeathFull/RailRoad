@@ -22,6 +22,7 @@
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^8.0.0",
+    "sharp": "^0.33.0",
     "zod": "^3.22.4",
     "zod-express-middleware": "^1.4.0"
   },
