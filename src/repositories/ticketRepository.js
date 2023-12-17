@@ -9,6 +9,10 @@ class TicketRepository {
     return await TicketModel.findById(id);
   }
 
+  async getTicketByPayload(payload) {
+    return await TicketModel.findOne(payload);
+  }
+
   async updateTicket(id, payload) {
     return await TicketModel.findOneAndUpdate(
       {

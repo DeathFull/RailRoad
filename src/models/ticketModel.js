@@ -7,6 +7,5 @@ const TicketSchema = new mongoose.Schema({
     required: true,
     ref: "Train",
   },
-  isValidated: { type: Boolean, required: true },
 });
 export const TicketModel = mongoose.model("Ticket", TicketSchema);
