@@ -10,14 +10,20 @@ class TicketRepository {
   }
 
   async updateTicket(id, payload) {
-    const newTicket = await TicketModel.findOneAndUpdate(
+    return await TicketModel.findOneAndUpdate(
       {
         _id: id,
       },
       payload,
     );
+  }
 
-    return newTicket;
+  async deleteTicketByTrain(id) {
+    await TicketModel.deleteMany({ train: id });
+  }
+
+  async deleteTicketByUser(id) {
+    await TicketModel.deleteMany({ user: id });
   }
 }
 
