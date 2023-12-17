@@ -12,6 +12,7 @@ import { employeeMiddleware } from "../middlewares/employeeMiddleware.js";
 import { userMiddleware } from "../middlewares/userMiddleware.js";
 import dotenv from "dotenv";
 import { objectIdMiddleware } from "../middlewares/objectIdMiddleware.js";
+import TicketRepository from "../repositories/ticketRepository.js";
 
 const router = express.Router();
 dotenv.config();
@@ -126,6 +127,7 @@ router.delete(
   userMiddleware,
   async (req, res) => {
     await UserRepository.deleteUser(req.params.id);
+    await TicketRepository.deleteTicketByUser(req.params.id);
     res.status(204).send();
   },
 );

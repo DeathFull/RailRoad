@@ -16,7 +16,6 @@ router.get("/:id", objectIdMiddleware, async (req, res) => {
   }
 
   if (ticket.isValidated) {
-    // res.json(ticket);
     return res.status(200).json({ isValid: ticket.isValidated });
   }
 });

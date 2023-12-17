@@ -3,6 +3,7 @@ import TrainRepository from "../repositories/TrainRepository.js";
 import { adminMiddleware } from "../middlewares/adminMiddleware.js";
 import { tokenMiddleware } from "../middlewares/tokenMiddleware.js";
 import { objectIdMiddleware } from "../middlewares/objectIdMiddleware.js";
+import TicketRepository from "../repositories/ticketRepository.js";
 
 const router = express.Router();
 
@@ -51,6 +52,7 @@ router.delete(
   objectIdMiddleware,
   async (req, res) => {
     await TrainRepository.deleteTrain(req.params.id);
+    await TicketRepository.deleteTicketByTrain(req.params.id);
     res.status(204).send();
   },
 );
