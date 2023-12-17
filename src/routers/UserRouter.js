@@ -101,6 +101,16 @@ router.put(
     const { id } = req.params;
     const existingUser = await UserRepository.getUserById(id);
     if (existingUser) {
+      if (req.user.role !== "Admin") {
+        res.status(403).send("You are not allowed to edit this user");
+        delete req.body.role;
+      }
+      if (req.body.password)
+        existingUser.setPassword(req.body.password, () => {
+          existingUser.save();
+        });
+
+      req.body.lastEdited = new Date();
       await UserRepository.updateUser(id, req.body);
     } else {
       return res.status(404).send("User not found");
